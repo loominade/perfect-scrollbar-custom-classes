@@ -25,6 +25,7 @@ const defaultSettings = () => ({
   useBothWheelAxes: false,
   wheelPropagation: true,
   wheelSpeed: 1,
+  classes: cls,
 });
 
 const handlers = {
@@ -47,24 +48,26 @@ export default class PerfectScrollbar {
 
     this.element = element;
 
-    element.classList.add(cls.main);
-
     this.settings = defaultSettings();
     for (const key in userSettings) {
       this.settings[key] = userSettings[key];
     }
+
+    element.classList.add(this.settings.classes.main);
 
     this.containerWidth = null;
     this.containerHeight = null;
     this.contentWidth = null;
     this.contentHeight = null;
 
-    const focus = () => element.classList.add(cls.state.focus);
-    const blur = () => element.classList.remove(cls.state.focus);
+    const focus = () =>
+      element.classList.add(this.settings.classes.state.focus);
+    const blur = () =>
+      element.classList.remove(this.settings.classes.state.focus);
 
     this.isRtl = CSS.get(element).direction === 'rtl';
     if (this.isRtl === true) {
-      element.classList.add(cls.rtl);
+      element.classList.add(this.settings.classes.rtl);
     }
     this.isNegativeScroll = (() => {
       const originalScrollLeft = element.scrollLeft;
@@ -80,9 +83,9 @@ export default class PerfectScrollbar {
     this.event = new EventManager();
     this.ownerDocument = element.ownerDocument || document;
 
-    this.scrollbarXRail = DOM.div(cls.element.rail('x'));
+    this.scrollbarXRail = DOM.div(this.settings.classes.element.rail('x'));
     element.appendChild(this.scrollbarXRail);
-    this.scrollbarX = DOM.div(cls.element.thumb('x'));
+    this.scrollbarX = DOM.div(this.settings.classes.element.thumb('x'));
     this.scrollbarXRail.appendChild(this.scrollbarX);
     this.scrollbarX.setAttribute('tabindex', 0);
     this.event.bind(this.scrollbarX, 'focus', focus);
@@ -108,9 +111,9 @@ export default class PerfectScrollbar {
     this.railXWidth = null;
     this.railXRatio = null;
 
-    this.scrollbarYRail = DOM.div(cls.element.rail('y'));
+    this.scrollbarYRail = DOM.div(this.settings.classes.element.rail('y'));
     element.appendChild(this.scrollbarYRail);
-    this.scrollbarY = DOM.div(cls.element.thumb('y'));
+    this.scrollbarY = DOM.div(this.settings.classes.element.thumb('y'));
     this.scrollbarYRail.appendChild(this.scrollbarY);
     this.scrollbarY.setAttribute('tabindex', 0);
     this.event.bind(this.scrollbarY, 'focus', focus);
@@ -141,23 +144,25 @@ export default class PerfectScrollbar {
         element.scrollLeft <= 0
           ? 'start'
           : element.scrollLeft >= this.contentWidth - this.containerWidth
-          ? 'end'
-          : null,
+            ? 'end'
+            : null,
       y:
         element.scrollTop <= 0
           ? 'start'
           : element.scrollTop >= this.contentHeight - this.containerHeight
-          ? 'end'
-          : null,
+            ? 'end'
+            : null,
     };
 
     this.isAlive = true;
 
-    this.settings.handlers.forEach(handlerName => handlers[handlerName](this));
+    this.settings.handlers.forEach((handlerName) =>
+      handlers[handlerName](this),
+    );
 
     this.lastScrollTop = Math.floor(element.scrollTop); // for onScroll only
     this.lastScrollLeft = element.scrollLeft; // for onScroll only
-    this.event.bind(this.element, 'scroll', e => this.onScroll(e));
+    this.event.bind(this.element, 'scroll', (e) => this.onScroll(e));
     updateGeometry(this);
   }
 
@@ -204,7 +209,7 @@ export default class PerfectScrollbar {
     processScrollDiff(
       this,
       'left',
-      this.element.scrollLeft - this.lastScrollLeft
+      this.element.scrollLeft - this.lastScrollLeft,
     );
 
     this.lastScrollTop = Math.floor(this.element.scrollTop);
@@ -236,7 +241,7 @@ export default class PerfectScrollbar {
   removePsClasses() {
     this.element.className = this.element.className
       .split(' ')
-      .filter(name => !name.match(/^ps([-_].+|)$/))
+      .filter((name) => !name.match(/^ps([-_].+|)$/))
       .join(' ');
   }
 }

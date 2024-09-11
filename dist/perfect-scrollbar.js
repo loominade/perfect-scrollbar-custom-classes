@@ -1,6 +1,6 @@
 /*!
- * perfect-scrollbar v1.5.3
- * Copyright 2021 Hyunje Jun, MDBootstrap and Contributors
+ * perfect-scrollbar v1.5.5
+ * Copyright 2024 Hyunje Jun, MDBootstrap and Contributors
  * Licensed under MIT
  */
 
@@ -84,7 +84,7 @@
 
   function addScrollingClass(i, x) {
     var classList = i.element.classList;
-    var className = cls.state.scrolling(x);
+    var className = i.settings.classes.state.scrolling(x);
 
     if (classList.contains(className)) {
       clearTimeout(scrollingClassTimeout[x]);
@@ -95,7 +95,8 @@
 
   function removeScrollingClass(i, x) {
     scrollingClassTimeout[x] = setTimeout(
-      function () { return i.isAlive && i.element.classList.remove(cls.state.scrolling(x)); },
+      function () { return i.isAlive &&
+        i.element.classList.remove(i.settings.classes.state.scrolling(x)); },
       i.settings.scrollingThreshold
     );
   }
@@ -337,14 +338,18 @@
 
     if (!element.contains(i.scrollbarXRail)) {
       // clean up and append
-      queryChildren(element, cls.element.rail('x')).forEach(function (el) { return remove(el); }
-      );
+      queryChildren(
+        element,
+        i.settings.classes.element.rail('x')
+      ).forEach(function (el) { return remove(el); });
       element.appendChild(i.scrollbarXRail);
     }
     if (!element.contains(i.scrollbarYRail)) {
       // clean up and append
-      queryChildren(element, cls.element.rail('y')).forEach(function (el) { return remove(el); }
-      );
+      queryChildren(
+        element,
+        i.settings.classes.element.rail('y')
+      ).forEach(function (el) { return remove(el); });
       element.appendChild(i.scrollbarYRail);
     }
 
@@ -397,17 +402,17 @@
     updateCss(element, i);
 
     if (i.scrollbarXActive) {
-      element.classList.add(cls.state.active('x'));
+      element.classList.add(i.settings.classes.state.active('x'));
     } else {
-      element.classList.remove(cls.state.active('x'));
+      element.classList.remove(i.settings.classes.state.active('x'));
       i.scrollbarXWidth = 0;
       i.scrollbarXLeft = 0;
       element.scrollLeft = i.isRtl === true ? i.contentWidth : 0;
     }
     if (i.scrollbarYActive) {
-      element.classList.add(cls.state.active('y'));
+      element.classList.add(i.settings.classes.state.active('y'));
     } else {
-      element.classList.remove(cls.state.active('y'));
+      element.classList.remove(i.settings.classes.state.active('y'));
       i.scrollbarYHeight = 0;
       i.scrollbarYTop = 0;
       element.scrollTop = 0;
@@ -1134,6 +1139,7 @@
     useBothWheelAxes: false,
     wheelPropagation: true,
     wheelSpeed: 1,
+    classes: cls,
   }); };
 
   var handlers = {
@@ -1158,24 +1164,24 @@
 
     this.element = element;
 
-    element.classList.add(cls.main);
-
     this.settings = defaultSettings();
     for (var key in userSettings) {
       this.settings[key] = userSettings[key];
     }
+
+    element.classList.add(this.settings.classes.main);
 
     this.containerWidth = null;
     this.containerHeight = null;
     this.contentWidth = null;
     this.contentHeight = null;
 
-    var focus = function () { return element.classList.add(cls.state.focus); };
-    var blur = function () { return element.classList.remove(cls.state.focus); };
+    var focus = function () { return element.classList.add(this$1.settings.classes.state.focus); };
+    var blur = function () { return element.classList.remove(this$1.settings.classes.state.focus); };
 
     this.isRtl = get(element).direction === 'rtl';
     if (this.isRtl === true) {
-      element.classList.add(cls.rtl);
+      element.classList.add(this.settings.classes.rtl);
     }
     this.isNegativeScroll = (function () {
       var originalScrollLeft = element.scrollLeft;
@@ -1191,9 +1197,9 @@
     this.event = new EventManager();
     this.ownerDocument = element.ownerDocument || document;
 
-    this.scrollbarXRail = div(cls.element.rail('x'));
+    this.scrollbarXRail = div(this.settings.classes.element.rail('x'));
     element.appendChild(this.scrollbarXRail);
-    this.scrollbarX = div(cls.element.thumb('x'));
+    this.scrollbarX = div(this.settings.classes.element.thumb('x'));
     this.scrollbarXRail.appendChild(this.scrollbarX);
     this.scrollbarX.setAttribute('tabindex', 0);
     this.event.bind(this.scrollbarX, 'focus', focus);
@@ -1219,9 +1225,9 @@
     this.railXWidth = null;
     this.railXRatio = null;
 
-    this.scrollbarYRail = div(cls.element.rail('y'));
+    this.scrollbarYRail = div(this.settings.classes.element.rail('y'));
     element.appendChild(this.scrollbarYRail);
-    this.scrollbarY = div(cls.element.thumb('y'));
+    this.scrollbarY = div(this.settings.classes.element.thumb('y'));
     this.scrollbarYRail.appendChild(this.scrollbarY);
     this.scrollbarY.setAttribute('tabindex', 0);
     this.event.bind(this.scrollbarY, 'focus', focus);
@@ -1252,19 +1258,20 @@
         element.scrollLeft <= 0
           ? 'start'
           : element.scrollLeft >= this.contentWidth - this.containerWidth
-          ? 'end'
-          : null,
+            ? 'end'
+            : null,
       y:
         element.scrollTop <= 0
           ? 'start'
           : element.scrollTop >= this.contentHeight - this.containerHeight
-          ? 'end'
-          : null,
+            ? 'end'
+            : null,
     };
 
     this.isAlive = true;
 
-    this.settings.handlers.forEach(function (handlerName) { return handlers[handlerName](this$1); });
+    this.settings.handlers.forEach(function (handlerName) { return handlers[handlerName](this$1); }
+    );
 
     this.lastScrollTop = Math.floor(element.scrollTop); // for onScroll only
     this.lastScrollLeft = element.scrollLeft; // for onScroll only

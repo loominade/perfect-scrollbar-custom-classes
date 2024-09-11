@@ -2,15 +2,15 @@ const cls = {
   main: 'ps',
   rtl: 'ps__rtl',
   element: {
-    thumb: x => `ps__thumb-${x}`,
-    rail: x => `ps__rail-${x}`,
+    thumb: (x) => `ps__thumb-${x}`,
+    rail: (x) => `ps__rail-${x}`,
     consuming: 'ps__child--consume',
   },
   state: {
     focus: 'ps--focus',
     clicking: 'ps--clicking',
-    active: x => `ps--active-${x}`,
-    scrolling: x => `ps--scrolling-${x}`,
+    active: (x) => `ps--active-${x}`,
+    scrolling: (x) => `ps--scrolling-${x}`,
   },
 };
 
@@ -23,7 +23,7 @@ const scrollingClassTimeout = { x: null, y: null };
 
 export function addScrollingClass(i, x) {
   const classList = i.element.classList;
-  const className = cls.state.scrolling(x);
+  const className = i.settings.classes.state.scrolling(x);
 
   if (classList.contains(className)) {
     clearTimeout(scrollingClassTimeout[x]);
@@ -34,8 +34,10 @@ export function addScrollingClass(i, x) {
 
 export function removeScrollingClass(i, x) {
   scrollingClassTimeout[x] = setTimeout(
-    () => i.isAlive && i.element.classList.remove(cls.state.scrolling(x)),
-    i.settings.scrollingThreshold
+    () =>
+      i.isAlive &&
+      i.element.classList.remove(i.settings.classes.state.scrolling(x)),
+    i.settings.scrollingThreshold,
   );
 }
 
